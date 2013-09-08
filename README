@@ -1,0 +1,46 @@
+Utilities for streaming JSON processing:
+* DeletingParser - Removes specified subtrees from a JSON tree.
+* PatchingGenerator - Replaces or adds specified subtrees in a JSON tree.
+
+DeletingParser example:
+
+        HashMap<String,Object> deletes = new HashMap<String,Object>();
+        HashMap<String,Object> adeletes = new HashMap<String,Object>();
+        deletes.put("a", adeletes);
+        adeletes.put("a", null);
+        deletes.put("d", null);
+
+        JsonFactory jf = new JsonFactory();
+        JsonParser jp = new DeletingParser(jf.createParser("{\"a\":{\"a\":[1,2,3,{\"b\":false,\"c\":null}],\"b\":1},\"b\":[1,2,3],\"c\":true,\"d\":4}"), deletes);
+        jp.nextToken();
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = jf.createGenerator(sw);
+        jg.copyCurrentStructure(jp);
+        jg.flush();
+        System.out.println(sw.toString());
+
+should print: {"a":{"b":1},"b":[1,2,3],"c":true}
+
+PatchingGenerator example:
+        Map<String,Object> patches = new LinkedHashMap<String,Object>();
+        ArrayList<Object> list = new ArrayList<Object>();
+        patches.put("d", list);
+        list.add(false);
+        list.add(null);
+        list.add(1);
+        patches.put("e", 5);
+        Map<String,Object> apatch = new LinkedHashMap<String,Object>();
+        patches.put("a", apatch);
+        apatch.put("a", 0);
+        apatch.put("c", 2);
+
+        JsonFactory jf = new JsonFactory();
+        JsonParser jp = jf.createParser("{\"a\":{\"a\":[1,2,3,{\"b\":false,\"c\":null}],\"b\":1},\"b\":[1,2,3],\"c\":true,\"d\":4}");
+        StringWriter sw = new StringWriter();
+        JsonGenerator jg = new PatchingGenerator(jf.createGenerator(sw), patches);
+        jp.nextToken();
+        jg.copyCurrentStructure(jp);
+        jg.flush();
+        System.out.println(sw.toString());
+
+should print: {"a":{"a":0,"b":1,"c":2},"b":[1,2,3],"c":true,"d":[false,null,1],"e":5}
