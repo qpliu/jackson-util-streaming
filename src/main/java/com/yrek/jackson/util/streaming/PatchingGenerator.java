@@ -1,4 +1,4 @@
-package com.yrek.jackson.streaming;
+package com.yrek.jackson.util.streaming;
 
 import java.io.InputStream;
 import java.io.IOException;

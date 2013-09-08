@@ -1,4 +1,4 @@
-package com.yrek.jackson.streaming;
+package com.yrek.jackson.util.streaming;
 
 import java.io.IOException;
 import java.util.LinkedList;
